@@ -1,28 +1,17 @@
 <?php
-
-//$opts = array('http'=> array('proxy'=> 'tcp://www.cache:3128', 'request_fulluri'=>True));
 //$context = stream_context_create($opts);
 
 $xmltxt = file_get_contents('http://ip-api.com/xml', false);
 
-
-
-
-$xml = new DOMDocument;
+$xml1 = new DOMDocument;
 //$xml->load('gps.xml');
-$xml->loadXML($xmltxt);
-
-$xsl = new DOMDocument;
-$xsl->load('bicyclette.xsl');
-
-// Configuration du transformateur
-$proc = new XSLTProcessor;
-$proc->importStyleSheet($xsl); // attachement des règles xsl 
-//echo $proc->transformToXML($xml);
+$xml1->loadXML($xmltxt);
 
 $test=simplexml_load_string($xmltxt);
 $latitude= $test->lat;
 $longitude = $test->lon;
+$ville=$test->city;
+
 
 $meteo= file_get_contents("https://www.infoclimat.fr/public-api/gfs/xml?_ll=$latitude,$longitude&_auth=ARsDFFIsBCZRfFtsD3lSe1Q8ADUPeVRzBHgFZgtuAH1UMQNgUTNcPlU5VClSfVZkUn8AYVxmVW0Eb1I2WylSLgFgA25SNwRuUT1bPw83UnlUeAB9DzFUcwR4BWMLYwBhVCkDb1EzXCBVOFQoUmNWZlJnAH9cfFVsBGRSPVs1UjEBZwNkUjIEYVE6WyYPIFJjVGUAZg9mVD4EbwVhCzMAMFQzA2JRMlw5VThUKFJiVmtSZQBpXGtVbwRlUjVbKVIuARsDFFIsBCZRfFtsD3lSe1QyAD4PZA%3D%3D&_c=19f3aa7d766b6ba91191c8be71dd1ab2",false);
 //echo $longitude.",".$latitude;
@@ -36,24 +25,13 @@ $xsl->load('meteo.xsl');
 // Configuration du transformateur
 $proc = new XSLTProcessor;
 $proc->importStyleSheet($xsl); // attachement des règles xsl 
-echo $proc->transformToXML($xml);
+
+
+$velib= file_get_contents("https://api.jcdecaux.com/vls/v1/stations?contract=$ville&apiKey=5dc905dc851e7cfa5b910d25c2e82eea9b6b43fd",false);
+$velib = json_decode($velib);
 
 
 
-//$context = stream_context_create($opts);
-
-$xmltxt = file_get_contents('http://ip-api.com/xml', false);
-
-
-var_dump($xmltxt);
-
-$xml = new DOMDocument;
-//$xml->load('gps.xml');
-$xml->loadXML($xmltxt);
-
-$test=simplexml_load_string($xmltxt);
-$latitude= $test->lat;
-$longitude = $test->lon;
 ?>
 <!DOCTYPE html>
 <html>
@@ -70,12 +48,15 @@ $longitude = $test->lon;
 </head>
 <style>
     #map {
-        height: 360px;
+        height: 500px;
     }
 </style>
 
 <body>
+
+    <?php echo $proc->transformToXML($xml);?>
     <script type="text/javascript">
+        
         var requete = new XMLHttpRequest();
         requete.onload = function() {
         //La variable à passer est alors contenue dans l'objet response et l'attribut responseText.
@@ -83,7 +64,7 @@ $longitude = $test->lon;
         };
     </script>
     <h1>
-         La somme = 
+         
          <script type="text/javascript">
             document.write(variableARecuperee)
          </script>
@@ -91,8 +72,21 @@ $longitude = $test->lon;
     <div id="map">
         <script type="text/javascript">
 
-            var map = L.map('map').setView([49.2128, 4.0481], 13);
-
+            var map = L.map('map').setView([<?php echo $latitude ?>, <?php echo $longitude ?>], 14);
+            <?php
+            foreach($velib as $station){
+                $place_libre=$station->available_bike_stands;
+                $velo_dispo=$station->available_bikes;
+                $lat=$station->position;
+                $lat=$lat->lat;
+                $lng=$station->position;
+                $lng=$lng->lng;
+                ?>
+                var marker = L.marker([<?php echo $lat?>,<?php echo $lng?>]).addTo(map);
+                marker.bindPopup("Velo(s) Disponible :<?php echo $velo_dispo?> <br/> Borne(s) Disponible :<?php echo $place_libre?>").openPopup();
+                <?php
+            }?>
+            
             var tiles = L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
                 maxZoom: 18,
                 attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, ' +
