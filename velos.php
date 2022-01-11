@@ -55,6 +55,12 @@ $velib = json_decode($velib);
     #map {
         height: 500px;
     }
+    table{
+        width: 100%;
+    }
+    h3{
+        text-align: center;
+    }
 </style>
 
 <body>
