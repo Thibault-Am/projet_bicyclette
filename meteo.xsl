@@ -30,16 +30,11 @@
         <xsl:when test="substring($date,12,2)=16">
         <td><b> Après midi <i>(<xsl:value-of select="substring($date,12,2)"/>H00) :</i></b>
         <xsl:apply-templates select="temperature"/>
-        
-        
-        
-         
-        
         <xsl:apply-templates select="pluie"/>
         <xsl:apply-templates select="vent_moyen"/></td>
         </xsl:when>
         <xsl:when test="substring($date,12,2)=10">
-      <tr><td><xsl:value-of select="substring($date,0,11)"/></td></tr>
+      <tr><td colspan="3"><h3><xsl:value-of select="substring($date,0,11)"/></h3></td></tr>
       <td><b> Matin <i>(<xsl:value-of select="substring($date,12,2)"/>H00) :</i></b>
        <xsl:apply-templates select="temperature"/>
        <xsl:apply-templates select="pluie"/>
@@ -81,4 +76,3 @@
     </xsl:template>
 
 </xsl:stylesheet>
-
