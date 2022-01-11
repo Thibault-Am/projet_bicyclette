@@ -1,7 +1,9 @@
 <?php
 //$context = stream_context_create($opts);
+$opts = array('http' => array('proxy'=> 'tcp://www-cache:3128', 'request_fulluri'=> true));
+$context = stream_context_create($opts);
 
-$xmltxt = file_get_contents('http://ip-api.com/xml', false);
+$xmltxt = file_get_contents('http://ip-api.com/xml', false, $context);
 
 $xml1 = new DOMDocument;
 //$xml->load('gps.xml');
@@ -13,8 +15,10 @@ $longitude = $test->lon;
 $ville=$test->city;
 
 
-$meteo= file_get_contents("https://www.infoclimat.fr/public-api/gfs/xml?_ll=$latitude,$longitude&_auth=ARsDFFIsBCZRfFtsD3lSe1Q8ADUPeVRzBHgFZgtuAH1UMQNgUTNcPlU5VClSfVZkUn8AYVxmVW0Eb1I2WylSLgFgA25SNwRuUT1bPw83UnlUeAB9DzFUcwR4BWMLYwBhVCkDb1EzXCBVOFQoUmNWZlJnAH9cfFVsBGRSPVs1UjEBZwNkUjIEYVE6WyYPIFJjVGUAZg9mVD4EbwVhCzMAMFQzA2JRMlw5VThUKFJiVmtSZQBpXGtVbwRlUjVbKVIuARsDFFIsBCZRfFtsD3lSe1QyAD4PZA%3D%3D&_c=19f3aa7d766b6ba91191c8be71dd1ab2",false);
+$meteo= file_get_contents("https://www.infoclimat.fr/public-api/gfs/xml?_ll=$latitude,$longitude&_auth=ARsDFFIsBCZRfFtsD3lSe1Q8ADUPeVRzBHgFZgtuAH1UMQNgUTNcPlU5VClSfVZkUn8AYVxmVW0Eb1I2WylSLgFgA25SNwRuUT1bPw83UnlUeAB9DzFUcwR4BWMLYwBhVCkDb1EzXCBVOFQoUmNWZlJnAH9cfFVsBGRSPVs1UjEBZwNkUjIEYVE6WyYPIFJjVGUAZg9mVD4EbwVhCzMAMFQzA2JRMlw5VThUKFJiVmtSZQBpXGtVbwRlUjVbKVIuARsDFFIsBCZRfFtsD3lSe1QyAD4PZA%3D%3D&_c=19f3aa7d766b6ba91191c8be71dd1ab2",false, $context);
 //echo $longitude.",".$latitude;
+
+
 
 $xml = new DOMDocument;
 //$xml->load('gps.xml');
@@ -26,8 +30,9 @@ $xsl->load('meteo.xsl');
 $proc = new XSLTProcessor;
 $proc->importStyleSheet($xsl); // attachement des règles xsl 
 
-
-$velib= file_get_contents("https://api.jcdecaux.com/vls/v1/stations?contract=$ville&apiKey=5dc905dc851e7cfa5b910d25c2e82eea9b6b43fd",false);
+$opts = array('http' => array('proxy'=> 'tcp://www-cache:3128'));
+$context = stream_context_create($opts);
+$velib= file_get_contents("https://api.jcdecaux.com/vls/v1/stations?contract=$ville&apiKey=5dc905dc851e7cfa5b910d25c2e82eea9b6b43fd",false, $context);
 $velib = json_decode($velib);
 
 

@@ -30,6 +30,11 @@
         <xsl:when test="substring($date,12,2)=16">
         <td><b> Après midi <i>(<xsl:value-of select="substring($date,12,2)"/>H00) :</i></b>
         <xsl:apply-templates select="temperature"/>
+        
+        
+        
+         
+        
         <xsl:apply-templates select="pluie"/>
         <xsl:apply-templates select="vent_moyen"/></td>
         </xsl:when>
@@ -54,7 +59,19 @@
     </xsl:template>
 
     <xsl:template match="temperature">
-      <div>Température: <xsl:value-of select='format-number(*[@val="sol"] - 273.15,"##.##")'/>°C</div>
+    <xsl:variable name='temperature' select='format-number(*[@val="sol"] - 273.15,"##.##")' />
+      <div>Température: <xsl:value-of select='$temperature'/>°C</div>
+      <xsl:choose>
+        <xsl:when test="$temperature &lt; 5">
+          <img src="img/flocon-de-neige.png" alt="fzeeagfa" width='20px'/>
+        </xsl:when>
+        <xsl:when test="$temperature &lt; 18 and $temperature &gt; 5 ">
+          <img src="img/temperatures.png" alt="fzeeagfa" width='20px'/>
+        </xsl:when>
+        <xsl:when test="$temperature &gt; 18">
+          <img src="img/temperature-chaude.png" alt="fzeeagfa" width='20px'/>
+        </xsl:when>
+      </xsl:choose>
     </xsl:template>
     <xsl:template match="pluie">
       <div>Pluie: <xsl:value-of select='format-number(. ,"##.##")'/> mm/h </div>
